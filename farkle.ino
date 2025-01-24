@@ -3,6 +3,7 @@
 
 PCF8575 score_display(0x21);
 int score = 0;
+int temp_score = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
 
 void add_die(int number) {
@@ -29,8 +30,15 @@ void clear() {
   }
 }
 
+void lock() {
+  temp_score = temp_score + calculate_score(dice);
+  clear();
+}
+
 void bank() {
-  score = score + calculate_score(dice);
+  lock();
+  score = score + temp_score;
+  temp_score = 0;
 }
 
 void setup() {
@@ -44,8 +52,16 @@ void setup() {
   add_die(6);
   remove_die();
   add_die(5);
-
-  bank();
+  lock(); // 650
+  add_die(1);
+  lock(); // 100
+  add_die(3);
+  add_die(3);
+  add_die(3);
+  add_die(3);
+  add_die(3);
+  add_die(3);
+  bank(); // 3000
 }
 
 void loop() {
