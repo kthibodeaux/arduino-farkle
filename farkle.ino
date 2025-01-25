@@ -22,7 +22,7 @@ EasyButton button_bank(BUTTON_PIN_BANK);
 
 PCF8575 score_display(0x21);
 int score = 0;
-int temp_score = 0;
+int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
 
 void add_1() {
@@ -74,14 +74,14 @@ void clear() {
 }
 
 void lock() {
-  temp_score = temp_score + calculate_score(dice);
+  points_locked_in = points_locked_in + calculate_score(dice);
   clear();
 }
 
 void bank() {
   lock();
-  score = score + temp_score;
-  temp_score = 0;
+  score = score + points_locked_in;
+  points_locked_in = 0;
 }
 
 void setup() {
