@@ -1,6 +1,5 @@
-#include <Wire.h>
-#include <PCF8575.h>
 #include <EasyButton.h>
+#include <TM1637Display.h>
 
 #define BUTTON_PIN_1 1
 #define BUTTON_PIN_2 2
@@ -20,7 +19,8 @@ EasyButton button_6(BUTTON_PIN_6);
 EasyButton button_reset(BUTTON_PIN_RESET);
 EasyButton button_bank(BUTTON_PIN_BANK);
 
-PCF8575 score_display(0x21);
+TM1637Display score_display(11, 12);
+
 int score = 0;
 int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
@@ -85,10 +85,6 @@ void bank() {
 }
 
 void setup() {
-  Wire.begin();
-
-  display_score_setup();
-
   button_1.begin();
   button_1.onPressed(add_1);
   button_2.begin();
@@ -105,6 +101,8 @@ void setup() {
   button_reset.onPressed(clear);
   button_bank.begin();
   button_bank.onPressed(bank);
+
+  score_display.setBrightness(0x0f);
 }
 
 void loop() {
@@ -116,5 +114,6 @@ void loop() {
   button_6.read();
   button_reset.read();
   button_bank.read();
-  display_score(score);
+
+  score_display.showNumberDec(score, false);
 }
