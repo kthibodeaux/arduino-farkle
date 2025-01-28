@@ -1,5 +1,5 @@
 #include <EasyButton.h>
-#include <TM1637Display.h>
+#include <TM1637TinyDisplay6.h>
 
 #define BUTTON_PIN_1 1
 #define BUTTON_PIN_2 2
@@ -19,7 +19,7 @@ EasyButton button_6(BUTTON_PIN_6);
 EasyButton button_reset(BUTTON_PIN_RESET);
 EasyButton button_bank(BUTTON_PIN_BANK);
 
-TM1637Display score_display(11, 12);
+TM1637TinyDisplay6 score_display(11, 12);
 
 int score = 0;
 int points_locked_in = 0;
@@ -102,7 +102,8 @@ void setup() {
   button_bank.begin();
   button_bank.onPressed(bank);
 
-  score_display.setBrightness(0x0f);
+  score_display.begin();
+  score_display.setBrightness(0);
 }
 
 void loop() {
@@ -115,5 +116,5 @@ void loop() {
   button_reset.read();
   button_bank.read();
 
-  score_display.showNumberDec(score, false);
+  score_display.showNumber(score);
 }
