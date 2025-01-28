@@ -1,6 +1,6 @@
-#include <Wire.h>
-#include <PCF8575.h>
 #include <EasyButton.h>
+#include <TM1637TinyDisplay6.h>
+#include <TM1637TinyDisplay.h>
 
 #define BUTTON_PIN_1 1
 #define BUTTON_PIN_2 2
@@ -8,7 +8,7 @@
 #define BUTTON_PIN_4 4
 #define BUTTON_PIN_5 5
 #define BUTTON_PIN_6 6
-#define BUTTON_PIN_RESET 7
+#define BUTTON_PIN_LOCK 7
 #define BUTTON_PIN_BANK 8
 
 EasyButton button_1(BUTTON_PIN_1);
@@ -17,10 +17,12 @@ EasyButton button_3(BUTTON_PIN_3);
 EasyButton button_4(BUTTON_PIN_4);
 EasyButton button_5(BUTTON_PIN_5);
 EasyButton button_6(BUTTON_PIN_6);
-EasyButton button_reset(BUTTON_PIN_RESET);
+EasyButton button_lock(BUTTON_PIN_LOCK);
 EasyButton button_bank(BUTTON_PIN_BANK);
 
-PCF8575 score_display(0x21);
+TM1637TinyDisplay6 score_display(11, 12);
+TM1637TinyDisplay locked_in_display(9, 10);
+
 int score = 0;
 int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
@@ -73,6 +75,11 @@ void clear() {
   }
 }
 
+void bust() {
+  clear();
+  points_locked_in = 0;
+}
+
 void lock() {
   points_locked_in = points_locked_in + calculate_score(dice);
   clear();
@@ -85,10 +92,6 @@ void bank() {
 }
 
 void setup() {
-  Wire.begin();
-
-  display_score_setup();
-
   button_1.begin();
   button_1.onPressed(add_1);
   button_2.begin();
@@ -101,10 +104,16 @@ void setup() {
   button_5.onPressed(add_5);
   button_6.begin();
   button_6.onPressed(add_6);
-  button_reset.begin();
-  button_reset.onPressed(clear);
+  button_lock.begin();
+  button_lock.onPressed(lock);
   button_bank.begin();
   button_bank.onPressed(bank);
+
+  locked_in_display.begin();
+  locked_in_display.setBrightness(0);
+
+  score_display.begin();
+  score_display.setBrightness(0);
 }
 
 void loop() {
@@ -114,7 +123,9 @@ void loop() {
   button_4.read();
   button_5.read();
   button_6.read();
-  button_reset.read();
+  button_lock.read();
   button_bank.read();
-  display_score(score);
+
+  score_display.showNumber(score);
+  locked_in_display.showNumber(points_locked_in);
 }
