@@ -1,15 +1,16 @@
 #include <EasyButton.h>
-#include <TM1637TinyDisplay6.h>
-#include <TM1637TinyDisplay.h>
+#include "I2C_LCD.h"
 
-#define BUTTON_PIN_1 1
-#define BUTTON_PIN_2 2
-#define BUTTON_PIN_3 3
-#define BUTTON_PIN_4 4
-#define BUTTON_PIN_5 5
-#define BUTTON_PIN_6 6
-#define BUTTON_PIN_LOCK 7
-#define BUTTON_PIN_BANK 8
+#define BUTTON_PIN_1 2
+#define BUTTON_PIN_2 3
+#define BUTTON_PIN_3 4
+#define BUTTON_PIN_4 5
+#define BUTTON_PIN_5 6
+#define BUTTON_PIN_6 7
+#define BUTTON_PIN_BUST 8
+#define BUTTON_PIN_CLEAR 9
+#define BUTTON_PIN_LOCK 10
+#define BUTTON_PIN_BANK 11
 
 EasyButton button_1(BUTTON_PIN_1);
 EasyButton button_2(BUTTON_PIN_2);
@@ -17,38 +18,122 @@ EasyButton button_3(BUTTON_PIN_3);
 EasyButton button_4(BUTTON_PIN_4);
 EasyButton button_5(BUTTON_PIN_5);
 EasyButton button_6(BUTTON_PIN_6);
+EasyButton button_bust(BUTTON_PIN_BUST);
+EasyButton button_clear(BUTTON_PIN_CLEAR);
 EasyButton button_lock(BUTTON_PIN_LOCK);
 EasyButton button_bank(BUTTON_PIN_BANK);
 
-TM1637TinyDisplay6 score_display(11, 12);
-TM1637TinyDisplay locked_in_display(9, 10);
+I2C_LCD lcd(39);
 
-int score = 0;
+int current_player = 0;
+int player_count = 0;
+bool is_in_setup = true;
 int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
+int player_scores[6] = { 0, 0, 0, 0, 0, 0 };
+
+void display_score(int x, int y, int player_index) {
+  lcd.setCursor(x, y);
+
+  if (current_player == player_index) {
+    lcd.print(">");
+  } else {
+    lcd.print(" ");
+  }
+
+  lcd.print(player_index + 1);
+  lcd.print(": ");
+  lcd.print(player_scores[player_index]);
+}
+
+void display_scores() {
+  display_score(0, 0, 0);
+
+  if (player_count >= 2) {
+    display_score(10, 0, 1);
+  }
+
+  if (player_count >= 3) {
+    display_score(0, 1, 2);
+  }
+
+  if (player_count >= 4) {
+    display_score(10, 1, 3);
+  }
+
+  if (player_count >= 5) {
+    display_score(0, 2, 4);
+  }
+
+  if (player_count == 6) {
+    display_score(10, 2, 5);
+  }
+}
+
+void display_points_locked_in() {
+  lcd.setCursor(0, 3);
+  lcd.clearEOL();
+
+  lcd.setCursor(1, 3);
+  lcd.print(points_locked_in);
+
+  lcd.setCursor(11, 3);
+  lcd.print(calculate_score(dice));
+}
+
+void init_players(int count) {
+  is_in_setup = false;
+  player_count = count;
+  lcd.clear();
+  display_scores();
+}
 
 void add_1() {
-  add_die(1);
+  if (is_in_setup) {
+    init_players(1);
+  } else {
+    add_die(1);
+  }
 }
 
 void add_2() {
-  add_die(2);
+  if (is_in_setup) {
+    init_players(2);
+  } else {
+    add_die(2);
+  }
 }
 
 void add_3() {
-  add_die(3);
+  if (is_in_setup) {
+    init_players(3);
+  } else {
+    add_die(3);
+  }
 }
 
 void add_4() {
-  add_die(4);
+  if (is_in_setup) {
+    init_players(4);
+  } else {
+    add_die(4);
+  }
 }
 
 void add_5() {
-  add_die(5);
+  if (is_in_setup) {
+    init_players(5);
+  } else {
+    add_die(5);
+  }
 }
 
 void add_6() {
-  add_die(6);
+  if (is_in_setup) {
+    init_players(6);
+  } else {
+    add_die(6);
+  }
 }
 
 void add_die(int number) {
@@ -58,26 +143,30 @@ void add_die(int number) {
       break;
     }
   }
+  display_points_locked_in();
 }
 
-void remove_die() {
-  for (int i = 5; i >= 0; i--) {
-    if (dice[i] != 0) {
-      dice[i] = 0;
-      break;
-    }
+void next_turn() {
+  if (current_player == player_count - 1) {
+    current_player = 0;
+  } else {
+    current_player++;
   }
+
+  display_scores();
 }
 
 void clear() {
   for (int i = 0; i < 6; i++) {
     dice[i] = 0;
   }
+  display_points_locked_in();
 }
 
 void bust() {
-  clear();
   points_locked_in = 0;
+  clear();
+  next_turn();
 }
 
 void lock() {
@@ -87,8 +176,10 @@ void lock() {
 
 void bank() {
   lock();
-  score = score + points_locked_in;
+  player_scores[current_player] = player_scores[current_player] + points_locked_in;
   points_locked_in = 0;
+  clear();
+  next_turn();
 }
 
 void setup() {
@@ -104,17 +195,26 @@ void setup() {
   button_5.onPressed(add_5);
   button_6.begin();
   button_6.onPressed(add_6);
+  button_bust.begin();
+  button_bust.onPressed(bust);
+  button_clear.begin();
+  button_clear.onPressed(clear);
   button_lock.begin();
   button_lock.onPressed(lock);
   button_bank.begin();
   button_bank.onPressed(bank);
 
-  locked_in_display.begin();
-  locked_in_display.setBrightness(0);
+  Wire.begin();
+  Wire.setClock(100000);
 
-  score_display.begin();
-  score_display.setBrightness(0);
+  lcd.begin(20, 4);
+  lcd.clear();
+
+  lcd.setBacklight(1);
+
+  lcd.center(1, "How many players?");
 }
+
 
 void loop() {
   button_1.read();
@@ -123,9 +223,8 @@ void loop() {
   button_4.read();
   button_5.read();
   button_6.read();
+  button_bust.read();
+  button_clear.read();
   button_lock.read();
   button_bank.read();
-
-  score_display.showNumber(score);
-  locked_in_display.showNumber(points_locked_in);
 }
