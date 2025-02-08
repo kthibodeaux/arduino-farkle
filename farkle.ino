@@ -32,6 +32,16 @@ int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
 int player_scores[6] = { 0, 0, 0, 0, 0, 0 };
 
+uint8_t dice_chars[6][8]
+{
+  { 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00 },
+  { 0x00, 0x01, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00 },
+  { 0x00, 0x01, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00 },
+  { 0x00, 0x11, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00 },
+  { 0x00, 0x11, 0x00, 0x04, 0x00, 0x11, 0x00, 0x00 },
+  { 0x00, 0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00 }
+};
+
 void display_score(int x, int y, int player_index) {
   lcd.setCursor(x, y);
 
@@ -77,8 +87,14 @@ void display_points_locked_in() {
   lcd.setCursor(1, 3);
   lcd.print(points_locked_in);
 
-  lcd.setCursor(11, 3);
-  lcd.print(calculate_score(dice));
+  lcd.setCursor(8, 3);
+
+  for (int i = 0; i < 6; i++) {
+    if (dice[i] > 0) {
+      lcd.special(dice[i] - 1);
+      lcd.print(" ");
+    }
+  }
 }
 
 void init_players(int count) {
@@ -208,6 +224,12 @@ void setup() {
   Wire.setClock(100000);
 
   lcd.begin(20, 4);
+
+  for (int i = 0; i < 6; i++) {
+    lcd.createChar(i, dice_chars[i]);
+    delay(5);
+  }
+
   lcd.clear();
 
   lcd.setBacklight(1);
