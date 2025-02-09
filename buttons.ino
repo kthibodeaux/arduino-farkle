@@ -1,4 +1,8 @@
 void die_press(int number) {
+  if (is_confirm_mode_bust == true || is_confirm_mode_bank == true) {
+    return;
+  }
+
   if (is_in_setup) {
     init_players(number);
   } else {
@@ -29,7 +33,36 @@ void next_turn() {
   display_scores();
 }
 
+void enter_confirm_bust_mode() {
+  is_confirm_mode_bust = true;
+  digitalWrite(RED_LED_PIN, HIGH);
+}
+
+void leave_confirm_bust_mode() {
+  is_confirm_mode_bust = false;
+  digitalWrite(RED_LED_PIN, LOW);
+}
+void enter_confirm_bank_mode() {
+  is_confirm_mode_bank = true;
+  digitalWrite(GREEN_LED_PIN, HIGH);
+}
+
+void leave_confirm_bank_mode() {
+  is_confirm_mode_bank = false;
+  digitalWrite(GREEN_LED_PIN, LOW);
+}
+
 void clear() {
+  if (is_confirm_mode_bust == true) {
+    leave_confirm_bust_mode();
+    return;
+  }
+
+  if (is_confirm_mode_bank == true) {
+    leave_confirm_bank_mode();
+    return;
+  }
+
   for (int i = 0; i < 6; i++) {
     dice[i] = 0;
   }
@@ -37,20 +70,37 @@ void clear() {
 }
 
 void bust() {
-  points_locked_in = 0;
-  clear();
-  next_turn();
+  if (is_confirm_mode_bank == true) { return; }
+
+  if (is_confirm_mode_bust == true) {
+    leave_confirm_bust_mode();
+    points_locked_in = 0;
+    clear();
+    next_turn();
+  } else {
+    enter_confirm_bust_mode();
+  }
 }
 
 void lock() {
+  if (is_confirm_mode_bust == true) { return; }
+  if (is_confirm_mode_bank == true) { return; }
+
   points_locked_in = points_locked_in + calculate_score(dice);
   clear();
 }
 
 void bank() {
-  lock();
-  player_scores[current_player] = player_scores[current_player] + points_locked_in;
-  points_locked_in = 0;
-  clear();
-  next_turn();
+  if (is_confirm_mode_bust == true) { return; }
+
+  if (is_confirm_mode_bank == true) {
+    leave_confirm_bank_mode();
+    lock();
+    player_scores[current_player] = player_scores[current_player] + points_locked_in;
+    points_locked_in = 0;
+    clear();
+    next_turn();
+  } else {
+    enter_confirm_bank_mode();
+  }
 }

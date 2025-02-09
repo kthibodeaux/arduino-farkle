@@ -33,6 +33,8 @@ bool is_in_setup = true;
 int points_locked_in = 0;
 int dice[6] = { 0, 0, 0, 0, 0, 0 };
 int player_scores[6] = { 0, 0, 0, 0, 0, 0 };
+bool is_confirm_mode_bust = false;
+bool is_confirm_mode_bank = false;
 
 uint8_t dice_chars[6][8]
 {
