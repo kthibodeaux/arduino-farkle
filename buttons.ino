@@ -1,60 +1,23 @@
-void add_1() {
+void die_press(int number) {
   if (is_in_setup) {
-    init_players(1);
+    init_players(number);
   } else {
-    add_die(1);
-  }
-}
-
-void add_2() {
-  if (is_in_setup) {
-    init_players(2);
-  } else {
-    add_die(2);
-  }
-}
-
-void add_3() {
-  if (is_in_setup) {
-    init_players(3);
-  } else {
-    add_die(3);
-  }
-}
-
-void add_4() {
-  if (is_in_setup) {
-    init_players(4);
-  } else {
-    add_die(4);
-  }
-}
-
-void add_5() {
-  if (is_in_setup) {
-    init_players(5);
-  } else {
-    add_die(5);
-  }
-}
-
-void add_6() {
-  if (is_in_setup) {
-    init_players(6);
-  } else {
-    add_die(6);
-  }
-}
-
-void add_die(int number) {
-  for (int i = 0; i < 6; i++) {
-    if (dice[i] == 0) {
-      dice[i] = number;
-      break;
+    for (int i = 0; i < 6; i++) {
+      if (dice[i] == 0) {
+        dice[i] = number;
+        break;
+      }
     }
+    display_points_locked_in();
   }
-  display_points_locked_in();
 }
+
+void add_1() { die_press(1); }
+void add_2() { die_press(2); }
+void add_3() { die_press(3); }
+void add_4() { die_press(4); }
+void add_5() { die_press(5); }
+void add_6() { die_press(6); }
 
 void next_turn() {
   if (current_player == player_count - 1) {
