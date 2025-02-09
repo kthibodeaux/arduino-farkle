@@ -11,6 +11,8 @@
 #define BUTTON_PIN_CLEAR 15
 #define BUTTON_PIN_LOCK 16
 #define BUTTON_PIN_BANK 10
+#define RED_LED_PIN 20
+#define GREEN_LED_PIN 19
 
 EasyButton button_1(BUTTON_PIN_1);
 EasyButton button_2(BUTTON_PIN_2);
@@ -199,6 +201,9 @@ void bank() {
 }
 
 void setup() {
+  pinMode(RED_LED_PIN, OUTPUT);
+  pinMode(GREEN_LED_PIN, OUTPUT);
+
   button_1.begin();
   button_1.onPressed(add_1);
   button_2.begin();
