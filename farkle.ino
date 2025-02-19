@@ -2,17 +2,17 @@
 #include "I2C_LCD.h"
 
 #define BUTTON_PIN_1 9
-#define BUTTON_PIN_2 8
-#define BUTTON_PIN_3 7
+#define BUTTON_PIN_2 7
+#define BUTTON_PIN_3 8
 #define BUTTON_PIN_4 6
 #define BUTTON_PIN_5 5
 #define BUTTON_PIN_6 4
-#define BUTTON_PIN_BUST 14
-#define BUTTON_PIN_CLEAR 15
+#define BUTTON_PIN_BUST 19
+#define BUTTON_PIN_CLEAR 18
 #define BUTTON_PIN_LOCK 16
 #define BUTTON_PIN_BANK 10
-#define RED_LED_PIN 20
-#define GREEN_LED_PIN 19
+#define RED_LED_PIN 15
+#define GREEN_LED_PIN 14
 
 EasyButton button_1(BUTTON_PIN_1);
 EasyButton button_2(BUTTON_PIN_2);
