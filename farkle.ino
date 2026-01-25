@@ -11,8 +11,8 @@
 #define BUTTON_PIN_CLEAR 15
 #define BUTTON_PIN_LOCK 18
 #define BUTTON_PIN_BANK 19
-#define RED_LED_PIN 16
-#define GREEN_LED_PIN 14
+#define RED_LED_PIN 14
+#define GREEN_LED_PIN 16
 
 EasyButton button_1(BUTTON_PIN_1);
 EasyButton button_2(BUTTON_PIN_2);
